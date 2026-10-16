@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facebook Share Tool</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      color: white;
+      background: linear-gradient(135deg, #07152f, #123e83, #1877f2);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      padding: 30px;
+      border: 1px solid #ffffff30;
+      border-radius: 20px;
+      background: #091b35;
+      box-shadow: 0 18px 55px #0005;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      background: #1877f2;
+      font-size: 36px;
+      font-weight: bold;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      font-size: 26px;
+    }
+
+    .subtitle {
+      margin: 10px 0 25px;
+      text-align: center;
+      color: #a9caff;
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      margin: 17px 0 8px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #c5d5eb;
+      border-radius: 10px;
+      background: white;
+      color: #172033;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #57a0ff;
+      box-shadow: 0 0 0 3px #1877f230;
+    }
+
+    button, .share-link {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #1877f2;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background .2s;
+    }
+
+    button {
+      margin-top: 22px;
+    }
+
+    button:hover, .share-link:hover {
+      background: #0d65d9;
+    }
+
+    .result {
+      display: grid;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .result-title {
+      color: #c7dcff;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #b8d1f5;
+      line-height: 1.6;
+    }
+
+    .creator {
+      margin-top: 25px;
+      padding-top: 18px;
+      border-top: 1px solid #ffffff25;
+      text-align: center;
+      color: #d5e5ff;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .creator strong {
+      display: block;
+      color: white;
+      font-size: 16px;
+    }
+
+    .small {
+      margin-top: 8px;
+      color: #93afd7;
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <div class="logo">f</div>
+
+    <h1>Facebook Share Tool</h1>
+    <p class="subtitle">Công cụ tạo liên kết chia sẻ Facebook</p>
+
+    <label for="postLink">Link bài viết Facebook</label>
+    <input
+      id="postLink"
+      type="url"
+      placeholder="Dán link bài viết tại đây..."
+    >
+
+    <label for="amount">Số liên kết muốn tạo</label>
+    <select id="amount">
+      <option value="1">1 liên kết</option>
+      <option value="3">3 liên kết</option>
+      <option value="5">5 liên kết</option>
+      <option value="10">10 liên kết</option>
+    </select>
+
+    <button id="createButton" type="button">
+      TẠO LIÊN KẾT
+    </button>
+
+    <div id="result" class="result"></div>
+    <div id="status" class="status" role="status"></div>
+
+    <div class="creator">
+      Người tạo code
+      <strong>LÊ ĐỨC NGUYÊN</strong>
+      <div>Facebook Share Tool</div>
+    </div>
+
+    <div class="small">
+      Công cụ cá nhân, không phải sản phẩm chính thức của Facebook.
+      Mỗi liên kết cần được người dùng tự thao tác và xác nhận.
+    </div>
+  </main>
+
+  <script>
+    const postLink = document.getElementById("postLink");
+    const amount = document.getElementById("amount");
+    const result = document.getElementById("result");
+    const status = document.getElementById("status");
+    const createButton = document.getElementById("createButton");
+
+    createButton.addEventListener("click", function () {
+      const link = postLink.value.trim();
+      result.replaceChildren();
+      status.textContent = "";
+
+      if (!link) {
+        status.textContent = "Vui lòng nhập link bài viết Facebook.";
+        postLink.focus();
+        return;
+      }
+
+      let url;
+
+      try {
+        url = new URL(link);
+      } catch {
+        status.textContent = "Link chưa hợp lệ. Vui lòng kiểm tra lại.";
+        return;
+      }
+
+      const host = url.hostname.toLowerCase();
+      const isFacebook =
+        host === "facebook.com" ||
+        host.endsWith(".facebook.com") ||
+        host === "fb.watch";
+
+      if (url.protocol !== "https:" || !isFacebook) {
+        status.textContent = "Vui lòng nhập link Facebook bắt đầu bằng https://.";
+        return;
+      }
+
+      const shareUrl =
+        "https://www.facebook.com/sharer/sharer.php?u=" +
+        encodeURIComponent(url.href);
+
+      const count = Number(amount.value);
+      const heading = document.createElement("div");
+      heading.className = "result-title";
+      heading.textContent = "Danh sách liên kết chia sẻ:";
+      result.appendChild(heading);
+
+      for (let i = 1; i <= count; i++) {
+        const linkElement = document.createElement("a");
+        linkElement.className = "share-link";
+        linkElement.href = shareUrl;
+        linkElement.target = "_blank";
+        linkElement.rel = "noopener noreferrer";
+        linkElement.textContent = "Mở liên kết " + i;
+        result.appendChild(linkElement);
+      }
+
+      status.textContent =
+        "Đã tạo " + count +
+        " liên kết. Việc tạo liên kết không có nghĩa là bài viết đã được chia sẻ.";
+    });
+  </script>
+</body>
+</html>
